@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2e7d32">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Registros Guachera</title>
+  <style>
+    :root {
+      --green:       #2e7d32;
+      --green-mid:   #43a047;
+      --green-light: #e8f5e9;
+      --pink:        #880e4f;
+      --blue:        #1565c0;
+      --orange:      #bf360c;
+      --purple:      #4a148c;
+      --red:         #c62828;
+      --bg:          #f0f4f0;
+      --card:        #ffffff;
+      --border:      #c8d8c8;
+      --text:        #1a1a1a;
+      --muted:       #5a6a5a;
+      --shadow:      0 3px 10px rgba(0,0,0,0.12);
+      --radius:      14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 18px;
+      overscroll-behavior: none;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; flex-direction: column; min-height: 100vh; }
+    .screen.active { display: flex; }
+
+    /* ── Header ── */
+    .header {
+      background: var(--green);
+      color: #fff;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .header h1 { font-size: 24px; flex: 1; }
+    .back-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* ── Scrollable content ── */
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 100px;
+    }
+
+    /* ──────────────────────────────
+       PANTALLA USUARIOS
+    ────────────────────────────── */
+    .user-hero {
+      background: var(--green);
+      color: #fff;
+      text-align: center;
+      padding: 40px 20px 36px;
+    }
+    .user-hero .cow { font-size: 72px; line-height: 1; }
+    .user-hero h1 { font-size: 30px; font-weight: 800; margin-top: 12px; }
+    .user-hero p  { font-size: 17px; opacity: .85; margin-top: 6px; }
+
+    .user-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color .15s, transform .1s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .user-card:active { border-color: var(--green); transform: scale(.98); }
+
+    .avatar {
+      width: 54px; height: 54px;
+      background: var(--green-mid);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; color: #fff; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .user-card .uname  { font-size: 22px; font-weight: 700; }
+    .user-card .ucnt   { font-size: 15px; color: var(--muted); margin-top: 2px; }
+    .user-card .arrow  { margin-left: auto; font-size: 28px; color: var(--green-mid); }
+
+    .add-user-panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .add-user-panel h3 { font-size: 20px; color: var(--green); margin-bottom: 14px; }
+
+    /* ──────────────────────────────
+       PANTALLA HOME
+    ────────────────────────────── */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
+      color: #fff;
+      padding: 22px 24px;
+    }
+    .welcome-banner .hello { font-size: 17px; opacity: .85; }
+    .welcome-banner .wname { font-size: 28px; font-weight: 800; margin-top: 2px; }
+    .welcome-banner .wdate { font-size: 15px; opacity: .80; margin-top: 6px; }
+
+    .section-label {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--green);
+      margin: 22px 0 6px;
+    }
+    .section-sub  { font-size: 16px; color: var(--muted); margin-bottom: 18px; }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .menu-btn {
+      background: var(--card);
+      border: none;
+      border-radius: 18px;
+      padding: 28px 12px 22px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      text-align: center;
+      transition: transform .12s, box-shadow .12s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .menu-btn:active { transform: scale(.95); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .menu-btn .micon  { font-size: 52px; display: block; margin-bottom: 12px; line-height: 1; }
+    .menu-btn .mlabel { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.2; }
+
+    .menu-btn.parto       { border-top: 6px solid var(--pink);   }
+    .menu-btn.vacuna      { border-top: 6px solid var(--blue);   }
+    .menu-btn.corral      { border-top: 6px solid var(--orange); }
+    .menu-btn.tratamiento { border-top: 6px solid var(--purple); }
+
+    /* ──────────────────────────────
+       FORMULARIOS
+    ────────────────────────────── */
+    .form-label {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 26px;
+      margin-bottom: 10px;
+    }
+    .form-label:first-of-type { margin-top: 8px; }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 18px 16px;
+      font-size: 22px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input:focus, textarea:focus { border-color: var(--green); }
+    textarea { min-height: 110px; resize: vertical; font-family: inherit; }
+
+    /* Toggle buttons */
+    .toggle-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .toggle-group.col { flex-direction: column; }
+
+    .toggle-btn {
+      flex: 1;
+      min-width: 110px;
+      padding: 18px 14px;
+      font-size: 21px;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .toggle-btn.sel {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+    .toggle-btn:active { opacity: .80; }
+
+    .btn-parto   .toggle-btn.sel { background: var(--pink);   border-color: var(--pink);   }
+    .btn-vacuna  .toggle-btn.sel { background: var(--blue);   border-color: var(--blue);   }
+    .btn-corral  .toggle-btn.sel { background: var(--orange); border-color: var(--orange); }
+    .btn-tratam  .toggle-btn.sel { background: var(--purple); border-color: var(--purple); }
+
+    /* Save button */
+    .save-btn {
+      width: 100%;
+      padding: 22px;
+      font-size: 24px;
+      font-weight: 800;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 34px;
+      box-shadow: 0 5px 14px rgba(46,125,50,.4);
+      transition: opacity .15s, transform .1s;
+      letter-spacing: .5px;
+    }
+    .save-btn:active { opacity: .85; transform: scale(.98); }
+
+    .save-btn.pink   { background: var(--pink);   box-shadow: 0 5px 14px rgba(136,14,79,.35); }
+    .save-btn.blue   { background: var(--blue);   box-shadow: 0 5px 14px rgba(21,101,192,.35); }
+    .save-btn.orange { background: var(--orange); box-shadow: 0 5px 14px rgba(191,54,12,.35); }
+    .save-btn.purple { background: var(--purple); box-shadow: 0 5px 14px rgba(74,20,140,.35); }
+
+    .cancel-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      background: transparent;
+      color: var(--muted);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    /* ──────────────────────────────
+       BOTTOM NAV
+    ────────────────────────────── */
+    .bottom-nav {
+      background: #fff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 12px 4px 14px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--muted);
+      transition: color .15s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .nav-btn .ni { font-size: 28px; }
+    .nav-btn.active { color: var(--green); font-weight: 700; }
+
+    /* ──────────────────────────────
+       HISTORIAL
+    ────────────────────────────── */
+    .hist-item {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border-left: 6px solid var(--green-mid);
+    }
+    .hist-item.parto       { border-color: var(--pink);   }
+    .hist-item.vacunacion  { border-color: var(--blue);   }
+    .hist-item.corral      { border-color: var(--orange); }
+    .hist-item.tratamiento { border-color: var(--purple); }
+
+    .ht { font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .hm { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+    .hd { font-size: 16px; color: var(--muted); margin-bottom: 6px; }
+    .hmt{ font-size: 13px; color: #999; }
+
+    .empty-state {
+      text-align: center;
+      padding: 70px 20px;
+      color: var(--muted);
+    }
+    .empty-state .ei { font-size: 70px; margin-bottom: 18px; }
+    .empty-state p   { font-size: 20px; line-height: 1.5; }
+
+    /* ──────────────────────────────
+       CONFIG
+    ────────────────────────────── */
+    .cfg-section {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .cfg-section h2 { font-size: 20px; color: var(--green); margin-bottom: 14px; font-weight: 700; }
+
+    .guide-step {
+      background: var(--green-light);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      border-left: 4px solid var(--green-mid);
+    }
+    .guide-step strong { font-size: 17px; color: var(--green); display: block; margin-bottom: 4px; }
+    .guide-step p { font-size: 15px; color: var(--muted); line-height: 1.5; }
+    .guide-step a { color: var(--green); }
+    .guide-step code {
+      display: block;
+      background: #c8e6c9;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      word-break: break-all;
+      margin-top: 6px;
+      font-family: monospace;
+    }
+
+    .danger-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      background: transparent;
+      color: var(--red);
+      border: 2px solid var(--red);
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    /* ──────────────────────────────
+       TOAST
+    ────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #222;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-size: 17px;
+      font-weight: 600;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap;
+      max-width: 92vw;
+      text-align: center;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Sync badge ── */
+    .sync-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    .sync-ok  { background:#e8f5e9; color:#2e7d32; }
+    .sync-err { background:#ffebee; color:#c62828; }
+    .sync-no  { background:#eeeeee; color:#757575; }
+
+    /* ── helper ── */
+    .mt2 { margin-top: 8px; }
+    .mt3 { margin-top: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: SELECCIÓN DE USUARIO
+════════════════════════════════════════════ -->
+<div class="screen active" id="sc-users">
+  <div class="user-hero">
+    <div class="cow">🐄</div>
+    <h1>Registros Guachera</h1>
+    <p>Seleccioná tu nombre para ingresar</p>
+  </div>
+
+  <div class="content">
+    <div id="user-list"></div>
+
+    <div class="add-user-panel" id="add-panel" style="display:none">
+      <h3>➕ Nuevo operador</h3>
+      <label class="form-label" style="margin-top:0">Nombre completo</label>
+      <input type="text" id="new-name" placeholder="Ej: María González" maxlength="50"
+             onkeydown="if(event.key==='Enter') createUser()">
+      <button class="save-btn" style="margin-top:18px;font-size:20px" onclick="createUser()">✓ Agregar</button>
+      <button class="cancel-btn" onclick="hideAddPanel()">Cancelar</button>
+    </div>
+
+    <button class="save-btn" id="show-add-btn" onclick="showAddPanel()">
+      ➕ Agregar operador
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: HOME
+════════════════════════════════════════════ -->
+<div class="screen" id="sc-home">
+  <div class="welcome-banner">
+    <div class="hello">Bienvenido/a,</div>
+    <div class="wname" id="disp-name">Operador</div>
+    <div class="wdate" id="disp-date"></div>
+  </div>
+
+  <div class="content">
+    <div class="section-label">¿Qué desea registrar?</div>
+    <div class="section-sub">Tocá el tipo de registro</div>
+
+    <div class="menu-grid">
+      <button class="menu-btn parto" onclick="go('sc-parto')">
+        <span class="micon">🐮</span>
+        <span class="mlabel">Parto</span>
+      </button>
+      <button class="menu-btn vacuna" onclick="go('sc-vacuna')">
+        <span class="micon">💉</span>
+        <span class="mlabel">Vacunación</span>
+      </button>
+      <button class="menu-btn corral" onclick="go('sc-corral')">
+        <span class="micon">🏠</span>
+        <span class="mlabel">Cambio de Corral</span>
+      </button>
+      <button class="menu-btn tratamiento" onclick="go('sc-trat')">
+        <span class="micon">💊</span>
+        <span class="mlabel">Tratamiento</span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" data-nav="home">
+    <button class="nav-btn active" data-tab="home" onclick="tab('home')"><span class="ni">🏠</span>Inicio</button>
+    <button class="nav-btn" data-tab="hist" onclick="tab('hist')"><span class="ni">📋</span>Historial</button>
+    <button class="nav-btn" data-tab="cfg"  onclick="tab('cfg')"><span class="ni">⚙️</span>Config</button>
+  </nav>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: HISTORIAL
+════════════════════════════════════════════ -->
+<div class="screen" id="sc-hist">
+  <div class="header" style="background:var(--green)">
+    <h1>📋 Historial</h1>
+  </div>
+  <div class="content" id="hist-content" style="padding-bottom:80px"></div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" data-tab="home" onclick="tab('home')"><span class="ni">🏠</span>Inicio</button>
+    <button class="nav-btn active" data-tab="hist" onclick="tab('hist')"><span class="ni">📋</span>Historial</button>
+    <button class="nav-btn" data-tab="cfg"  onclick="tab('cfg')"><span class="ni">⚙️</span>Config</button>
+  </nav>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: CONFIGURACIÓN
+════════════════════════════════════════════ -->
+<div class="screen" id="sc-cfg">
+  <div class="header" style="background:var(--green)">
+    <h1>⚙️ Configuración</h1>
+  </div>
+  <div class="content" style="padding-bottom:100px">
+
+    <div class="cfg-section">
+      <h2>👤 Operador actual</h2>
+      <p style="font-size:20px;font-weight:700" id="cfg-user">—</p>
+      <button class="cancel-btn" style="margin-top:14px;font-size:18px" onclick="logout()">🔄 Cambiar operador</button>
+    </div>
+
+    <div class="cfg-section">
+      <h2>📊 Sincronizar con Google Sheets</h2>
+      <p style="font-size:15px;color:var(--muted);margin-bottom:14px">
+        Pegá la URL de tu Google Apps Script para que cada registro se envíe automáticamente a tu planilla.
+      </p>
+      <label class="form-label" style="margin-top:0;font-size:16px">URL del Apps Script</label>
+      <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/..." style="font-size:15px;padding:14px">
+      <div id="sync-status" class="sync-badge sync-no mt2">⬜ Sin configurar</div>
+      <button class="save-btn" style="font-size:19px;padding:16px;margin-top:14px" onclick="saveSheetUrl()">💾 Guardar URL</button>
+    </div>
+
+    <div class="cfg-section">
+      <h2>📖 Cómo configurar Google Sheets</h2>
+      <div class="guide-step">
+        <strong>Paso 1 — Crear una planilla nueva</strong>
+        <p>Abrí <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> y creá una hoja en blanco con el nombre que quieras.</p>
+      </div>
+      <div class="guide-step">
+        <strong>Paso 2 — Abrir Apps Script</strong>
+        <p>Dentro de la planilla: menú <em>Extensiones → Apps Script</em>.</p>
+      </div>
+      <div class="guide-step">
+        <strong>Paso 3 — Pegar el código</strong>
+        <p>Borrá todo lo que hay en el editor y pegá el código que copiás con el botón de abajo.</p>
+      </div>
+      <div class="guide-step">
+        <strong>Paso 4 — Publicar como aplicación web</strong>
+        <p>Clic en <em>Implementar → Nueva implementación</em>.<br>
+           Tipo: <em>Aplicación web</em>.<br>
+           Ejecutar como: <em>Yo</em>.<br>
+           Quién tiene acceso: <em>Cualquier usuario</em>.<br>
+           Copiá la URL generada y pegala aquí arriba.</p>
+      </div>
+      <button class="save-btn" style="font-size:17px;padding:16px;background:#1565c0;box-shadow:none" onclick="copyScript()">
+        📋 Copiar código del Apps Script
+      </button>
+    </div>
+
+    <div class="cfg-section" style="border: 2px solid #ffcdd2;">
+      <h2 style="color:var(--red)">⚠️ Zona peligrosa</h2>
+      <button class="danger-btn" onclick="clearRecords()">🗑️ Borrar todos mis registros locales</button>
+    </div>
+
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" data-tab="home" onclick="tab('home')"><span class="ni">🏠</span>Inicio</button>
+    <button class="nav-btn" data-tab="hist" onclick="tab('hist')"><span class="ni">📋</span>Historial</button>
+    <button class="nav-btn active" data-tab="cfg"  onclick="tab('cfg')"><span class="ni">⚙️</span>Config</button>
+  </nav>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: PARTO
+════════════════════════════════════════════ -->
+<div class="screen" id="sc-parto">
+  <div class="header" style="background:var(--pink)">
+    <button class="back-btn" onclick="back()">←</button>
+    <h1>🐮 Parto</h1>
+  </div>
+  <div class="content">
+    <label class="form-label">RP Madre</label>
+    <input type="text" id="p-madre" placeholder="Ej: 1234" inputmode="numeric">
+
+    <label class="form-label">Fecha de Parto</label>
+    <input type="date" id="p-fecha">
+
+    <label class="form-label">Tipo de Parto</label>
+    <div class="toggle-group btn-parto">
+      <button class="toggle-btn" data-g="tipo-parto" data-v="Normal"   onclick="sel(this)">Normal</button>
+      <button class="toggle-btn" data-g="tipo-parto" data-v="C/Ayuda"  onclick="sel(this)">C/Ayuda</button>
+    </div>
+
+    <label class="form-label">RP Ternero/a</label>
+    <input type="text" id="p-ternero" placeholder="Ej: 5678" inputmode="numeric">
+
+    <label class="form-label">Sexo</label>
+    <div class="toggle-group btn-parto">
+      <button class="toggle-btn" data-g="sexo" data-v="M" onclick="sel(this)">♂ Macho</button>
+      <button class="toggle-btn" data-g="sexo" data-v="H" onclick="sel(this)">♀ Hembra</button>
+    </div>
+
+    <label class="form-label">Peso (kg)</label>
+    <input type="number" id="p-peso" placeholder="Ej: 38" min="1" max="200" inputmode="decimal">
+
+    <label class="form-label">Estado</label>
+    <div class="toggle-group btn-parto">
+      <button class="toggle-btn" data-g="estado" data-v="Vivo"   onclick="sel(this)">✅ Vivo</button>
+      <button class="toggle-btn" data-g="estado" data-v="Muerto" onclick="sel(this)">❌ Muerto</button>
+    </div>
+
+    <label class="form-label">Calostrado</label>
+    <div class="toggle-group btn-parto">
+      <button class="toggle-btn" data-g="calostrado" data-v="Sí" onclick="sel(this)">✅ Sí</button>
+      <button class="toggle-btn" data-g="calostrado" data-v="No" onclick="sel(this)">❌ No</button>
+    </div>
+
+    <button class="save-btn pink" onclick="saveParto()">💾 Guardar Registro</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: VACUNACIÓN
+════════════════════════════════════════════ -->
+<div class="screen" id="sc-vacuna">
+  <div class="header" style="background:var(--blue)">
+    <button class="back-btn" onclick="back()">←</button>
+    <h1>💉 Vacunación</h1>
+  </div>
+  <div class="content">
+    <label class="form-label">RP Ternero/a</label>
+    <input type="text" id="v-ternero" placeholder="Ej: 5678" inputmode="numeric">
+
+    <label class="form-label">Fecha</label>
+    <input type="date" id="v-fecha">
+
+    <label class="form-label">N° de Vacunación</label>
+    <div class="toggle-group btn-vacuna">
+      <button class="toggle-btn" data-g="n-vacuna" data-v="1era" onclick="sel(this)">1era</button>
+      <button class="toggle-btn" data-g="n-vacuna" data-v="2da"  onclick="sel(this)">2da</button>
+    </div>
+
+    <button class="save-btn blue" onclick="saveVacuna()">💾 Guardar Registro</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: CAMBIO DE CORRAL
+════════════════════════════════════════════ -->
+<div class="screen" id="sc-corral">
+  <div class="header" style="background:var(--orange)">
+    <button class="back-btn" onclick="back()">←</button>
+    <h1>🏠 Cambio de Corral</h1>
+  </div>
+  <div class="content">
+    <label class="form-label">RP Ternero/a</label>
+    <input type="text" id="c-ternero" placeholder="Ej: 5678" inputmode="numeric">
+
+    <label class="form-label">Fecha</label>
+    <input type="date" id="c-fecha">
+
+    <label class="form-label">Sistema de Corral</label>
+    <div class="toggle-group col btn-corral">
+      <button class="toggle-btn" data-g="sistema" data-v="Colectiva"        onclick="sel(this)">Colectiva</button>
+      <button class="toggle-btn" data-g="sistema" data-v="Acostumbramiento" onclick="sel(this)">Acostumbramiento</button>
+      <button class="toggle-btn" data-g="sistema" data-v="Recría 1"         onclick="sel(this)">Recría 1</button>
+    </div>
+
+    <button class="save-btn orange" onclick="saveCorral()">💾 Guardar Registro</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA: TRATAMIENTO
+════════════════════════════════════════════ -->
+<div class="screen" id="sc-trat">
+  <div class="header" style="background:var(--purple)">
+    <button class="back-btn" onclick="back()">←</button>
+    <h1>💊 Tratamiento</h1>
+  </div>
+  <div class="content">
+    <label class="form-label">RP Ternero/a</label>
+    <input type="text" id="t-ternero" placeholder="Ej: 5678" inputmode="numeric">
+
+    <label class="form-label">Fecha</label>
+    <input type="date" id="t-fecha">
+
+    <label class="form-label">Diagnóstico</label>
+    <textarea id="t-diag" placeholder="Descripción del diagnóstico..."></textarea>
+
+    <label class="form-label">Tratamiento</label>
+    <textarea id="t-trat" placeholder="Medicamento, dosis, procedimiento..."></textarea>
+
+    <button class="save-btn purple" onclick="saveTrat()">💾 Guardar Registro</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+// ──────────────────────────────────────────────
+// ESTADO GLOBAL
+// ──────────────────────────────────────────────
+let currentUser = null;
+let prevScreen  = 'sc-home';
+let curScreen   = 'sc-users';
+
+// ──────────────────────────────────────────────
+// NAVEGACIÓN
+// ──────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById(id).scrollTop = 0;
+  prevScreen = curScreen;
+  curScreen  = id;
+}
+function go(id) { showScreen(id); }
+function back() { showScreen(prevScreen || 'sc-home'); }
+
+function tab(t) {
+  // actualizar botones nav en TODAS las navs
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === t);
+  });
+  if (t === 'home') { showScreen('sc-home'); }
+  else if (t === 'hist') { renderHist(); showScreen('sc-hist'); }
+  else if (t === 'cfg')  { loadCfg();   showScreen('sc-cfg');  }
+}
+
+// ──────────────────────────────────────────────
+// TOGGLE BUTTONS
+// ──────────────────────────────────────────────
+function sel(btn) {
+  document.querySelectorAll(`[data-g="${btn.dataset.g}"]`)
+    .forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function getVal(group) {
+  const b = document.querySelector(`[data-g="${group}"].sel`);
+  return b ? b.dataset.v : '';
+}
+function resetGroup(...groups) {
+  groups.forEach(g =>
+    document.querySelectorAll(`[data-g="${g}"]`).forEach(b => b.classList.remove('sel'))
+  );
+}
+
+// ──────────────────────────────────────────────
+// USUARIOS
+// ──────────────────────────────────────────────
+function getUsers() { return JSON.parse(localStorage.getItem('gch_users') || '[]'); }
+function setUsers(u) { localStorage.setItem('gch_users', JSON.stringify(u)); }
+
+function renderUsers() {
+  const list  = document.getElementById('user-list');
+  const users = getUsers();
+  if (!users.length) {
+    list.innerHTML = '<p style="text-align:center;color:#888;padding:24px 0;font-size:18px">Aún no hay operadores.<br>Agregá el primero abajo.</p>';
+    return;
+  }
+  list.innerHTML = users.map(u => `
+    <div class="user-card" onclick="login('${u.name.replace(/'/g,"\\'")}')">
+      <div class="avatar">${u.name[0].toUpperCase()}</div>
+      <div>
+        <div class="uname">${u.name}</div>
+        <div class="ucnt">${u.records || 0} registros</div>
+      </div>
+      <span class="arrow">›</span>
+    </div>`).join('');
+}
+
+function showAddPanel() {
+  document.getElementById('add-panel').style.display = 'block';
+  document.getElementById('show-add-btn').style.display = 'none';
+  document.getElementById('new-name').focus();
+}
+function hideAddPanel() {
+  document.getElementById('add-panel').style.display = 'none';
+  document.getElementById('show-add-btn').style.display = 'block';
+  document.getElementById('new-name').value = '';
+}
+
+function createUser() {
+  const name = document.getElementById('new-name').value.trim();
+  if (!name) { toast('⚠️ Ingresá un nombre'); return; }
+  const users = getUsers();
+  if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+    toast('⚠️ Ya existe ese operador'); return;
+  }
+  users.push({ name, records: 0 });
+  setUsers(users);
+  hideAddPanel();
+  renderUsers();
+  toast('✅ Operador agregado');
+}
+
+function login(name) {
+  const users = getUsers();
+  currentUser = users.find(u => u.name === name);
+  if (!currentUser) return;
+  localStorage.setItem('gch_last', name);
+  document.getElementById('disp-name').textContent = name;
+  document.getElementById('disp-date').textContent = todayLong();
+  document.getElementById('cfg-user').textContent  = name;
+  showScreen('sc-home');
+}
+
+function logout() {
+  currentUser = null;
+  renderUsers();
+  showScreen('sc-users');
+}
+
+// ──────────────────────────────────────────────
+// FECHAS
+// ──────────────────────────────────────────────
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function fmtDate(s) {
+  if (!s) return '';
+  const [y,m,d] = s.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function todayLong() {
+  const n = new Date();
+  const D = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${D[n.getDay()]}, ${n.getDate()} de ${M[n.getMonth()]} de ${n.getFullYear()}`;
+}
+
+function setDates() {
+  const t = today();
+  ['p-fecha','v-fecha','c-fecha','t-fecha'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = t;
+  });
+}
+
+// ──────────────────────────────────────────────
+// REGISTROS
+// ──────────────────────────────────────────────
+function getRecords(user) {
+  const key = `gch_recs_${user}`;
+  return JSON.parse(localStorage.getItem(key) || '[]');
+}
+
+function addRecord(user, rec) {
+  const key     = `gch_recs_${user}`;
+  const records = getRecords(user);
+  rec.id        = Date.now();
+  rec.ts        = new Date().toISOString();
+  rec.usuario   = user;
+  records.unshift(rec);
+  localStorage.setItem(key, JSON.stringify(records));
+
+  // actualizar contador del usuario
+  const users = getUsers();
+  const u = users.find(x => x.name === user);
+  if (u) { u.records = (u.records || 0) + 1; setUsers(users); }
+
+  syncSheets(rec);
+  return rec;
+}
+
+// ──────────────────────────────────────────────
+// GUARDAR FORMULARIOS
+// ──────────────────────────────────────────────
+function need(...ids) {
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el && !el.value.trim()) return false;
+  }
+  return true;
+}
+
+function saveParto() {
+  const madre     = document.getElementById('p-madre').value.trim();
+  const fecha     = document.getElementById('p-fecha').value;
+  const tipoParto = getVal('tipo-parto');
+  const ternero   = document.getElementById('p-ternero').value.trim();
+  const sexo      = getVal('sexo');
+  const peso      = document.getElementById('p-peso').value;
+  const estado    = getVal('estado');
+  const calostrado= getVal('calostrado');
+
+  if (!madre || !fecha || !tipoParto || !ternero || !sexo || !peso || !estado || !calostrado) {
+    toast('⚠️ Completá todos los campos'); return;
+  }
+
+  addRecord(currentUser.name, { tipo:'parto', madre, fecha, tipoParto, ternero, sexo, peso, estado, calostrado });
+
+  document.getElementById('p-madre').value   = '';
+  document.getElementById('p-ternero').value = '';
+  document.getElementById('p-peso').value    = '';
+  resetGroup('tipo-parto','sexo','estado','calostrado');
+
+  toast('✅ Parto guardado correctamente');
+  setTimeout(() => showScreen('sc-home'), 900);
+}
+
+function saveVacuna() {
+  const ternero = document.getElementById('v-ternero').value.trim();
+  const fecha   = document.getElementById('v-fecha').value;
+  const nVacuna = getVal('n-vacuna');
+
+  if (!ternero || !fecha || !nVacuna) { toast('⚠️ Completá todos los campos'); return; }
+
+  addRecord(currentUser.name, { tipo:'vacunacion', ternero, fecha, nVacuna });
+
+  document.getElementById('v-ternero').value = '';
+  resetGroup('n-vacuna');
+  toast('✅ Vacunación guardada');
+  setTimeout(() => showScreen('sc-home'), 900);
+}
+
+function saveCorral() {
+  const ternero = document.getElementById('c-ternero').value.trim();
+  const fecha   = document.getElementById('c-fecha').value;
+  const sistema = getVal('sistema');
+
+  if (!ternero || !fecha || !sistema) { toast('⚠️ Completá todos los campos'); return; }
+
+  addRecord(currentUser.name, { tipo:'corral', ternero, fecha, sistema });
+
+  document.getElementById('c-ternero').value = '';
+  resetGroup('sistema');
+  toast('✅ Cambio de corral guardado');
+  setTimeout(() => showScreen('sc-home'), 900);
+}
+
+function saveTrat() {
+  const ternero = document.getElementById('t-ternero').value.trim();
+  const fecha   = document.getElementById('t-fecha').value;
+  const diag    = document.getElementById('t-diag').value.trim();
+  const trat    = document.getElementById('t-trat').value.trim();
+
+  if (!ternero || !fecha || !diag || !trat) { toast('⚠️ Completá todos los campos'); return; }
+
+  addRecord(currentUser.name, { tipo:'tratamiento', ternero, fecha, diagnostico: diag, tratamiento: trat });
+
+  document.getElementById('t-ternero').value = '';
+  document.getElementById('t-diag').value    = '';
+  document.getElementById('t-trat').value    = '';
+  toast('✅ Tratamiento guardado');
+  setTimeout(() => showScreen('sc-home'), 900);
+}
+
+// ──────────────────────────────────────────────
+// HISTORIAL
+// ──────────────────────────────────────────────
+const TIPO_LABEL = { parto:'🐮 Parto', vacunacion:'💉 Vacunación', corral:'🏠 Cambio de Corral', tratamiento:'💊 Tratamiento' };
+
+function renderHist() {
+  const cont = document.getElementById('hist-content');
+  if (!currentUser) { cont.innerHTML = '<p style="padding:30px;text-align:center">No hay sesión activa.</p>'; return; }
+
+  const recs = getRecords(currentUser.name).slice(0, 20);
+  if (!recs.length) {
+    cont.innerHTML = `<div class="empty-state"><div class="ei">📋</div><p>Sin registros aún.<br>Empezá cargando el primero.</p></div>`;
+    return;
+  }
+
+  cont.innerHTML = `<p style="color:#999;font-size:15px;margin-bottom:14px">Últimos ${recs.length} registros de <strong>${currentUser.name}</strong></p>` +
+    recs.map(r => {
+      let main = '', detail = '';
+      if (r.tipo === 'parto') {
+        main   = `Madre: <strong>${r.madre}</strong>  →  Ternero: <strong>${r.ternero}</strong>`;
+        detail = `${r.tipoParto} · ${r.sexo} · ${r.peso} kg · ${r.estado} · Calostrado: ${r.calostrado}`;
+      } else if (r.tipo === 'vacunacion') {
+        main   = `Ternero: <strong>${r.ternero}</strong>`;
+        detail = `Vacunación ${r.nVacuna}`;
+      } else if (r.tipo === 'corral') {
+        main   = `Ternero: <strong>${r.ternero}</strong>`;
+        detail = `Sistema: ${r.sistema}`;
+      } else if (r.tipo === 'tratamiento') {
+        main   = `Ternero: <strong>${r.ternero}</strong>`;
+        detail = `Diag: ${r.diagnostico}`;
+      }
+      return `<div class="hist-item ${r.tipo}">
+        <div class="ht">${TIPO_LABEL[r.tipo] || r.tipo}</div>
+        <div class="hm">${main}</div>
+        <div class="hd">${detail}</div>
+        <div class="hmt">📅 ${fmtDate(r.fecha)} &nbsp;·&nbsp; 👤 ${r.usuario}</div>
+      </div>`;
+    }).join('');
+}
+
+// ──────────────────────────────────────────────
+// CONFIGURACIÓN
+// ──────────────────────────────────────────────
+function loadCfg() {
+  const url = localStorage.getItem('gch_sheets_url') || '';
+  document.getElementById('sheets-url').value = url;
+  updateSyncBadge(url ? 'configured' : 'none');
+}
+
+function saveSheetUrl() {
+  const url = document.getElementById('sheets-url').value.trim();
+  localStorage.setItem('gch_sheets_url', url);
+  updateSyncBadge(url ? 'configured' : 'none');
+  toast('✅ URL guardada');
+}
+
+function updateSyncBadge(state) {
+  const el = document.getElementById('sync-status');
+  if (state === 'ok')         { el.className='sync-badge sync-ok';  el.textContent='✅ Sincronizado'; }
+  else if (state === 'err')   { el.className='sync-badge sync-err'; el.textContent='❌ Error de conexión'; }
+  else if (state === 'configured') { el.className='sync-badge sync-ok'; el.textContent='✅ URL configurada'; }
+  else                        { el.className='sync-badge sync-no';  el.textContent='⬜ Sin configurar'; }
+}
+
+function clearRecords() {
+  if (!currentUser) return;
+  if (!confirm(`¿Borrar todos los registros de ${currentUser.name}? Esta acción no se puede deshacer.`)) return;
+  localStorage.removeItem(`gch_recs_${currentUser.name}`);
+  const users = getUsers();
+  const u = users.find(x => x.name === currentUser.name);
+  if (u) { u.records = 0; setUsers(users); }
+  toast('🗑️ Registros eliminados');
+}
+
+// ──────────────────────────────────────────────
+// GOOGLE SHEETS SYNC
+// ──────────────────────────────────────────────
+function syncSheets(record) {
+  const url = localStorage.getItem('gch_sheets_url');
+  if (!url) return;
+  fetch(url, {
+    method: 'POST',
+    mode:   'no-cors',
+    headers:{ 'Content-Type': 'application/json' },
+    body:   JSON.stringify(record)
+  }).catch(() => {});
+}
+
+// ──────────────────────────────────────────────
+// CÓDIGO APPS SCRIPT (para copiar)
+// ──────────────────────────────────────────────
+const SCRIPT_CODE = `// ============================================================
+// GUACHERA - Google Apps Script
+// Pegá este código en Apps Script y publicalo como
+// "Aplicación web" con acceso "Cualquier usuario".
+// ============================================================
+
+const HOJA = 'Registros';
+
+function doPost(e) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  let   sheet = ss.getSheetByName(HOJA);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(HOJA);
+    const headers = [
+      'ID','Fecha/Hora','Usuario','Tipo','Fecha del Evento',
+      'RP Madre','Tipo Parto','RP Ternero/a','Sexo','Peso (kg)',
+      'Estado','Calostrado','N° Vacunación','Sistema Corral',
+      'Diagnóstico','Tratamiento'
+    ];
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length)
+         .setFontWeight('bold')
+         .setBackground('#2e7d32')
+         .setFontColor('#ffffff');
+    sheet.setFrozenRows(1);
+  }
+
+  const d = JSON.parse(e.postData.contents);
+
+  sheet.appendRow([
+    d.id          || '',
+    d.ts          || '',
+    d.usuario     || '',
+    d.tipo        || '',
+    d.fecha       || '',
+    d.madre       || '',
+    d.tipoParto   || '',
+    d.ternero     || '',
+    d.sexo        || '',
+    d.peso        || '',
+    d.estado      || '',
+    d.calostrado  || '',
+    d.nVacuna     || '',
+    d.sistema     || '',
+    d.diagnostico || '',
+    d.tratamiento || ''
+  ]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: true, rows: sheet.getLastRow() }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet() {
+  return ContentService
+    .createTextOutput('Guachera API activa ✓')
+    .setMimeType(ContentService.MimeType.TEXT);
+}`;
+
+function copyScript() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(SCRIPT_CODE)
+      .then(() => toast('✅ Código copiado al portapapeles'))
+      .catch(() => fallbackCopy());
+  } else {
+    fallbackCopy();
+  }
+}
+function fallbackCopy() {
+  const ta = document.createElement('textarea');
+  ta.value = SCRIPT_CODE;
+  ta.style.position = 'fixed';
+  ta.style.top = '-999px';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  toast('✅ Código copiado');
+}
+
+// ──────────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────────
+let toastTimer;
+function toast(msg, ms = 2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+function init() {
+  renderUsers();
+  setDates();
+
+  // Re-poner fecha cuando se abre una pantalla de formulario
+  ['sc-parto','sc-vacuna','sc-corral','sc-trat'].forEach(id => {
+    new MutationObserver(() => {
+      if (document.getElementById(id).classList.contains('active')) setDates();
+    }).observe(document.getElementById(id), { attributes: true, attributeFilter: ['class'] });
+  });
+
+  // Auto-login si hay un último usuario guardado
+  const last = localStorage.getItem('gch_last');
+  if (last) {
+    const users = getUsers();
+    const u = users.find(x => x.name === last);
+    if (u) login(u.name);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
