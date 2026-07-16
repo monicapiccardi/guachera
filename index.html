@@ -1031,9 +1031,12 @@ function clearRecords() {
 
 // ──────────────────────────────────────────────
 // GOOGLE SHEETS SYNC
+// URL fija del Apps Script — funciona en todos los dispositivos
+const SHEETS_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbxi7BVvXmhmNIdBW5AJur0Ghk7wcmn4_ECSfWn3U_M1_HQFAKoJ6yHJEHPH5jOrSxg3Kg/exec';
+
 // ──────────────────────────────────────────────
 function syncSheets(record) {
-  const url = localStorage.getItem('gch_sheets_url');
+  const url = localStorage.getItem('gch_sheets_url') || SHEETS_URL_DEFAULT;
   if (!url) return;
   fetch(url, {
     method: 'POST',
